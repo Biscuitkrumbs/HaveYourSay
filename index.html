@@ -10,59 +10,50 @@
 <body>
   <main class="app-shell">
     <section class="survey-card" aria-live="polite">
-      
+      <div class="brand-strip" aria-hidden="true"></div>
+      <div class="progress-wrap" aria-hidden="true">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
 
       <section id="welcomeScreen" class="screen active">
-        <p class="eyebrow">TEAM FEEDBACK</p>
-
-        <h1>What would you like to do?</h1>
+        <div class="welcome-heading">
+          <p class="eyebrow">TEAM FEEDBACK</p>
+          <h1>Have Your Say</h1>
+          <p class="intro">Your feedback helps us build a better place to work.</p>
+          <p class="welcome-copy">Share an idea, tell us what is working, or celebrate a team mate who made a difference.</p>
+        </div>
 
         <div class="start-options">
-          <button
-            id="feedbackStartButton"
-            class="start-option"
-            type="button"
-          >
-            <span class="start-option-icon">💬</span>
-
+          <button id="feedbackStartButton" class="start-option" type="button">
+            <span class="start-option-icon" aria-hidden="true">💬</span>
             <span class="start-option-content">
               <strong>Have Your Say</strong>
-              <small>Share what is working and what we could do better.</small>
+              <small>Help us improve by sharing your feedback.</small>
             </span>
+            <span class="start-option-arrow" aria-hidden="true">→</span>
           </button>
 
-          <button
-            id="recognitionStartButton"
-            class="start-option"
-            type="button"
-          >
-            <span class="start-option-icon">⭐</span>
-
+          <button id="recognitionStartButton" class="start-option" type="button">
+            <span class="start-option-icon" aria-hidden="true">🏆</span>
             <span class="start-option-content">
               <strong>Recognise a Team Mate</strong>
-              <small>Celebrate someone living one of our values.</small>
+              <small>Celebrate someone who made a difference.</small>
             </span>
+            <span class="start-option-arrow" aria-hidden="true">→</span>
           </button>
         </div>
 
-        <p class="privacy-note">
-          Feedback is anonymous unless you choose to leave your name.
-        </p>
+        <p class="privacy-note">Feedback is anonymous unless you choose to leave your name.</p>
       </section>
 
       <section id="recommendScreen" class="screen">
-        <p class="step-label">1 of 4</p>
+        <p class="step-label">STEP 1 OF 3</p>
         <h2>Would you recommend our store as a good place to work?</h2>
+        <p class="screen-copy">Choose a score from 0 to 10.</p>
 
         <fieldset class="nps-fieldset">
           <legend class="sr-only">Choose a score from 0 to 10</legend>
-
-          <div
-            id="npsScale"
-            class="nps-scale"
-            aria-label="Recommendation score"
-          ></div>
-
+          <div id="npsScale" class="nps-scale" aria-label="Recommendation score"></div>
           <div class="nps-descriptions" aria-hidden="true">
             <span class="nps-description detractor">Not likely</span>
             <span class="nps-description passive">Neutral</span>
@@ -70,15 +61,15 @@
           </div>
         </fieldset>
 
-
         <button class="primary-button next-button" type="button" data-next="feedbackScreen" disabled>
           Continue
         </button>
       </section>
 
       <section id="feedbackScreen" class="screen">
-        <p class="step-label">2 of 4</p>
+        <p class="step-label">STEP 2 OF 3</p>
         <h2>How are we doing?</h2>
+        <p class="screen-copy">Tell us what is helping the team and where we could improve.</p>
 
         <label for="doingWell">What are we doing well?</label>
         <textarea id="doingWell" rows="4" placeholder="Tell us what is working well"></textarea>
@@ -92,29 +83,28 @@
       </section>
 
       <section id="cultureScreen" class="screen">
-        <p class="step-label">3 of 4</p>
+        <p class="step-label">STEP 3 OF 3</p>
         <h2>Are we getting our Team &amp; Culture Plan right?</h2>
+        <p class="screen-copy">Choose the option that best reflects how you feel.</p>
 
         <div id="cultureOptions" class="choice-grid"></div>
 
         <label for="cultureMissing">What are we missing?</label>
         <textarea id="cultureMissing" rows="4" placeholder="What should we focus on next?"></textarea>
 
-        <button
-          id="feedbackSubmitButton"
-          class="primary-button"
-          type="button"
-        >
+        <button id="feedbackSubmitButton" class="primary-button submit-button" type="button">
           Submit feedback
         </button>
       </section>
 
       <section id="recognitionScreen" class="screen">
-        <p class="step-label">4 of 4</p>
-        <h2>Recognise a team member</h2>
+        <div class="recognition-mark" aria-hidden="true">🏆</div>
+        <p class="step-label">TEAM RECOGNITION</p>
+        <h2>Recognise a team mate</h2>
+        <p class="screen-copy">Celebrate someone who made a positive difference.</p>
 
-        <label for="teamMember">Team member's name</label>
-        <input id="teamMember" type="text" autocomplete="off" placeholder="Optional" />
+        <label for="teamMember">Team mate's name</label>
+        <input id="teamMember" type="text" autocomplete="off" placeholder="Who would you like to recognise?" />
 
         <p class="field-label">Which value did they demonstrate?</p>
         <div id="valueOptions" class="choice-grid values-grid"></div>
@@ -130,23 +120,20 @@
         <div id="followUpFields" class="follow-up-fields hidden">
           <label for="yourName">Your name</label>
           <input id="yourName" type="text" autocomplete="name" placeholder="Your name" />
-
         </div>
 
-        <button
-          id="submitButton"
-          class="primary-button submit-button"
-          type="button"
-        >
-          Submit
+        <button id="submitButton" class="primary-button submit-button" type="button">
+          Submit recognition
         </button>
       </section>
 
-      <section id="thankYouScreen" class="screen">
-        <div class="success-icon">✓</div>
-        <h2>Thank you</h2>
-        <p>Your feedback has been received.</p>
-        <p class="privacy-note">Every voice helps improve our store.</p>
+      <section id="thankYouScreen" class="screen thank-you-screen">
+        <div class="success-icon" aria-hidden="true">✓</div>
+        <p class="eyebrow">RESPONSE RECEIVED</p>
+        <h2>Thank you.</h2>
+        <p class="thank-you-message">Your response has been received.</p>
+        <p class="privacy-note">Every voice helps us make our store a better place to work.</p>
+        <button id="doneButton" class="secondary-button" type="button">Done</button>
       </section>
     </section>
   </main>

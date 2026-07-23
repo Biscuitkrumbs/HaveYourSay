@@ -1,38 +1,24 @@
 const surveyData = {
   responseType: "",
-
   recommendationScore: null,
-
   doingWell: "",
   couldImprove: "",
-
   culturePlan: "",
   cultureMissing: "",
-
   recognisedTeamMember: "",
   recognisedValue: "",
   recognitionComment: "",
-
   followUpRequested: false,
   respondentName: "",
 };
 
-const screenOrder = [
-  "welcomeScreen",
-  "recommendScreen",
-  "feedbackScreen",
-  "cultureScreen",
-  "recognitionScreen",
-  "thankYouScreen"
-];
-
 const progressByScreen = {
   welcomeScreen: 0,
-  recommendScreen: 25,
-  feedbackScreen: 50,
-  cultureScreen: 75,
+  recommendScreen: 33,
+  feedbackScreen: 66,
+  cultureScreen: 100,
   recognitionScreen: 100,
-  thankYouScreen: 100
+  thankYouScreen: 100,
 };
 
 function showScreen(screenId) {
@@ -40,18 +26,17 @@ function showScreen(screenId) {
     screen.classList.toggle("active", screen.id === screenId);
   });
 
-  //document.getElementById("progressBar").style.width =
-    //`${progressByScreen[screenId] ?? 0}%`;
+  const progressBar = document.getElementById("progressBar");
+  if (progressBar) {
+    progressBar.style.width = `${progressByScreen[screenId] ?? 0}%`;
+  }
 
-  //window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function createNpsScale() {
   const scale = document.getElementById("npsScale");
-
-  const continueButton = document.querySelector(
-    '#recommendScreen [data-next="feedbackScreen"]'
-  );
+  const continueButton = document.querySelector('#recommendScreen [data-next="feedbackScreen"]');
 
   for (let score = 0; score <= 10; score += 1) {
     const option = document.createElement("div");
@@ -69,13 +54,9 @@ function createNpsScale() {
     label.className = "nps-label";
     label.textContent = score;
 
-    if (score <= 6) {
-      label.classList.add("detractor");
-    } else if (score <= 8) {
-      label.classList.add("passive");
-    } else {
-      label.classList.add("promoter");
-    }
+    if (score <= 6) label.classList.add("detractor");
+    else if (score <= 8) label.classList.add("passive");
+    else label.classList.add("promoter");
 
     radio.addEventListener("change", () => {
       surveyData.recommendationScore = score;
@@ -100,7 +81,6 @@ function createChoiceButtons(containerId, choices, onSelect) {
       container.querySelectorAll(".choice-button").forEach((item) => {
         item.classList.toggle("selected", item === button);
       });
-
       onSelect(choice);
     });
 
@@ -118,61 +98,65 @@ function collectCurrentValues() {
   surveyData.respondentName = document.getElementById("yourName").value.trim();
 }
 
+function getActiveSubmitButton() {
+  return surveyData.responseType === "recognition"
+    ? document.getElementById("submitButton")
+    : document.getElementById("feedbackSubmitButton");
+}
+
 async function submitSurvey() {
   collectCurrentValues();
 
-  const payload = {
-    timestamp: new Date().toISOString(),
-    ...surveyData
+  const submission = {
+    responseType: surveyData.responseType || "feedback",
+    recommendationScore: surveyData.recommendationScore ?? "",
+    doingWell: surveyData.doingWell,
+    couldImprove: surveyData.couldImprove,
+    cultureRating: surveyData.culturePlan,
+    cultureMissing: surveyData.cultureMissing,
+    teamMember: surveyData.recognisedTeamMember,
+    value: surveyData.recognisedValue,
+    recognitionComment: surveyData.recognitionComment,
+    followUpRequested: surveyData.followUpRequested,
+    yourName: surveyData.respondentName,
   };
 
-  if (!CONFIG.apiUrl) {
-    console.table(payload);
-    showScreen("thankYouScreen");
-    return;
-  }
-
-  const submitButton = document.getElementById("submitButton");
-  submitButton.disabled = true;
-  submitButton.textContent = "Submitting...";
+  const activeButton = getActiveSubmitButton();
+  const originalText = activeButton.textContent;
+  activeButton.disabled = true;
+  activeButton.textContent = "Submitting...";
 
   try {
-    const response = await fetch(CONFIG.apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error(`Submission failed with status ${response.status}`);
+    if (!CONFIG.apiUrl) {
+      console.table(submission);
+    } else {
+      await fetch(CONFIG.apiUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(submission),
+      });
     }
 
     showScreen("thankYouScreen");
   } catch (error) {
-    console.error(error);
-    alert("We could not submit your feedback. Please try again.");
-    submitButton.disabled = false;
-    submitButton.textContent = "Submit feedback";
+    console.error("Submission failed:", error);
+    alert("We could not submit your feedback. Please check your connection and try again.");
+    activeButton.disabled = false;
+    activeButton.textContent = originalText;
   }
 }
 
 function initialiseSurvey() {
-  
-  document
-    .getElementById("feedbackStartButton")
-    .addEventListener("click", () => {
-      surveyData.responseType = "feedback";
-      showScreen("recommendScreen");
-    });
+  document.getElementById("feedbackStartButton").addEventListener("click", () => {
+    surveyData.responseType = "feedback";
+    showScreen("recommendScreen");
+  });
 
-  document
-    .getElementById("recognitionStartButton")
-    .addEventListener("click", () => {
-      surveyData.responseType = "recognition";
-      showScreen("recognitionScreen");
-    });
+  document.getElementById("recognitionStartButton").addEventListener("click", () => {
+    surveyData.responseType = "recognition";
+    showScreen("recognitionScreen");
+  });
 
   document.querySelectorAll(".next-button").forEach((button) => {
     button.addEventListener("click", () => {
@@ -182,84 +166,22 @@ function initialiseSurvey() {
   });
 
   document.getElementById("followUp").addEventListener("change", (event) => {
-    document
-      .getElementById("followUpFields")
-      .classList.toggle("hidden", !event.target.checked);
+    document.getElementById("followUpFields").classList.toggle("hidden", !event.target.checked);
   });
 
   document.getElementById("submitButton").addEventListener("click", submitSurvey);
+  document.getElementById("feedbackSubmitButton").addEventListener("click", submitSurvey);
+  document.getElementById("doneButton").addEventListener("click", () => window.location.reload());
 
   createNpsScale();
 
-  createChoiceButtons(
-    "cultureOptions",
-    CONFIG.cultureOptions,
-    (choice) => {
-      surveyData.culturePlan = choice;
-    }
-  );
+  createChoiceButtons("cultureOptions", CONFIG.cultureOptions, (choice) => {
+    surveyData.culturePlan = choice;
+  });
 
-  createChoiceButtons(
-    "valueOptions",
-    CONFIG.values,
-    (choice) => {
-      surveyData.recognisedValue = choice;
-    }
-  );
+  createChoiceButtons("valueOptions", CONFIG.values, (choice) => {
+    surveyData.recognisedValue = choice;
+  });
 }
-const submitButton = document.getElementById("submitButton");
 
-submitButton.addEventListener("click", submitSurvey);
-
-const feedbackSubmitButton = document.getElementById("feedbackSubmitButton");
-
-feedbackSubmitButton.addEventListener("click", submitSurvey);
-
-async function submitSurvey() {
-  const submission = {
-    responseType: surveyData.responseType || "feedback",
-    recommendationScore: surveyData.recommendationScore ?? "",
-
-    doingWell: document.getElementById("doingWell").value.trim(),
-    couldImprove: document.getElementById("couldImprove").value.trim(),
-
-    cultureRating: surveyData.cultureRating || "",
-    cultureMissing: document.getElementById("cultureMissing").value.trim(),
-
-    teamMember: document.getElementById("teamMember").value.trim(),
-    value: surveyData.value || "",
-    recognitionComment: document
-      .getElementById("recognitionComment")
-      .value.trim(),
-
-    followUpRequested: document.getElementById("followUp").checked,
-    yourName: document.getElementById("yourName").value.trim(),
-  
-  };
-
-  submitButton.disabled = true;
-  submitButton.textContent = "Submitting...";
-
-  try {
-    await fetch(CONFIG.apiUrl, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify(submission)
-    });
-
-    showScreen("thankYouScreen");
-  } catch (error) {
-    console.error("Submission failed:", error);
-
-    alert(
-      "We could not submit your feedback. Please check your connection and try again."
-    );
-
-    submitButton.disabled = false;
-    submitButton.textContent = "Submit feedback";
-  }
-}
 initialiseSurvey();
