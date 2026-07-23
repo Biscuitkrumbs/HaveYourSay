@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f6b45" />
+  <title>Have Your Say</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="survey-card" aria-live="polite">
+      
+
+      <section id="welcomeScreen" class="screen active">
+        <p class="eyebrow">TEAM FEEDBACK</p>
+
+        <h1>What would you like to do?</h1>
+
+        <div class="start-options">
+          <button
+            id="feedbackStartButton"
+            class="start-option"
+            type="button"
+          >
+            <span class="start-option-icon">💬</span>
+
+            <span class="start-option-content">
+              <strong>Have Your Say</strong>
+              <small>Share what is working and what we could do better.</small>
+            </span>
+          </button>
+
+          <button
+            id="recognitionStartButton"
+            class="start-option"
+            type="button"
+          >
+            <span class="start-option-icon">⭐</span>
+
+            <span class="start-option-content">
+              <strong>Recognise a Team Mate</strong>
+              <small>Celebrate someone living one of our values.</small>
+            </span>
+          </button>
+        </div>
+
+        <p class="privacy-note">
+          Feedback is anonymous unless you choose to leave your name.
+        </p>
+      </section>
+
+      <section id="recommendScreen" class="screen">
+        <p class="step-label">1 of 4</p>
+        <h2>Would you recommend our store as a good place to work?</h2>
+
+        <fieldset class="nps-fieldset">
+          <legend class="sr-only">Choose a score from 0 to 10</legend>
+
+          <div
+            id="npsScale"
+            class="nps-scale"
+            aria-label="Recommendation score"
+          ></div>
+
+          <div class="nps-descriptions" aria-hidden="true">
+            <span class="nps-description detractor">Not likely</span>
+            <span class="nps-description passive">Neutral</span>
+            <span class="nps-description promoter">Likely</span>
+          </div>
+        </fieldset>
+
+
+        <button class="primary-button next-button" type="button" data-next="feedbackScreen" disabled>
+          Continue
+        </button>
+      </section>
+
+      <section id="feedbackScreen" class="screen">
+        <p class="step-label">2 of 4</p>
+        <h2>How are we doing?</h2>
+
+        <label for="doingWell">What are we doing well?</label>
+        <textarea id="doingWell" rows="4" placeholder="Tell us what is working well"></textarea>
+
+        <label for="couldImprove">What could we do better?</label>
+        <textarea id="couldImprove" rows="4" placeholder="Share an idea or constructive suggestion"></textarea>
+
+        <button class="primary-button next-button" type="button" data-next="cultureScreen">
+          Continue
+        </button>
+      </section>
+
+      <section id="cultureScreen" class="screen">
+        <p class="step-label">3 of 4</p>
+        <h2>Are we getting our Team &amp; Culture Plan right?</h2>
+
+        <div id="cultureOptions" class="choice-grid"></div>
+
+        <label for="cultureMissing">What are we missing?</label>
+        <textarea id="cultureMissing" rows="4" placeholder="What should we focus on next?"></textarea>
+
+        <button
+          id="feedbackSubmitButton"
+          class="primary-button"
+          type="button"
+        >
+          Submit feedback
+        </button>
+      </section>
+
+      <section id="recognitionScreen" class="screen">
+        <p class="step-label">4 of 4</p>
+        <h2>Recognise a team member</h2>
+
+        <label for="teamMember">Team member's name</label>
+        <input id="teamMember" type="text" autocomplete="off" placeholder="Optional" />
+
+        <p class="field-label">Which value did they demonstrate?</p>
+        <div id="valueOptions" class="choice-grid values-grid"></div>
+
+        <label for="recognitionComment">What did they do?</label>
+        <textarea id="recognitionComment" rows="4" placeholder="Tell us what made a difference"></textarea>
+
+        <label class="follow-up-check">
+          <input id="followUp" type="checkbox" />
+          <span>I would like someone to follow up with me</span>
+        </label>
+
+        <div id="followUpFields" class="follow-up-fields hidden">
+          <label for="yourName">Your name</label>
+          <input id="yourName" type="text" autocomplete="name" placeholder="Your name" />
+
+        </div>
+
+        <button
+          id="submitButton"
+          class="primary-button submit-button"
+          type="button"
+        >
+          Submit
+        </button>
+      </section>
+
+      <section id="thankYouScreen" class="screen">
+        <div class="success-icon">✓</div>
+        <h2>Thank you</h2>
+        <p>Your feedback has been received.</p>
+        <p class="privacy-note">Every voice helps improve our store.</p>
+      </section>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
