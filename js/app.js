@@ -107,6 +107,8 @@ function getActiveSubmitButton() {
 async function submitSurvey() {
   collectCurrentValues();
 
+  console.log("Selected recognition value:", surveyData.recognisedValue);
+
   const submission = {
     responseType: surveyData.responseType || "feedback",
     recommendationScore: surveyData.recommendationScore ?? "",
