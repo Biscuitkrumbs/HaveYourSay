@@ -1,24 +1,13 @@
-/** Vision & Values Awards — install in a NEW spreadsheet-bound Apps Script project. */
+/** Vision & Values Awards — separate standalone project, same private spreadsheet. */
 const VALUE_IDS = ['fun','teamwork','integrity','recognition','innovation'];
 const VALUE_NAMES = ['Fun','Teamwork','Integrity','Recognition','Innovation'];
 // The eventual work recipient is deliberately NOT configured until go-live approval.
 function testRecipient_(){const email=PropertiesService.getScriptProperties().getProperty('TEST_RECIPIENT');if(!email||! /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error('Set the private TEST_RECIPIENT script property first.');return email;}
 const HEADERS = ['Browser voting ID','First saved','Last updated','Fun — name','Fun — reason','Teamwork — name','Teamwork — reason','Integrity — name','Integrity — reason','Recognition — name','Recognition — reason','Innovation — name','Innovation — reason','Voter name or nickname'];
 
-function onOpen() {
-  SpreadsheetApp.getUi().createMenu('Values Awards')
-    .addItem('Set up awards (emails OFF)', 'setupAwards')
-    .addItem('Preview recap in this sheet', 'previewRecap')
-    .addItem('Send test recap to Bret', 'sendTestRecap')
-    .addSeparator()
-    .addItem('Start a fresh TEST round (archive current)', 'resetTestRound')
-    .addItem('Close voting', 'closeVoting')
-    .addItem('Reopen voting', 'reopenVoting')
-    .addToUi();
-}
 function setupAwards() {
   const p=PropertiesService.getScriptProperties();
-  if(!p.getProperty('SPREADSHEET_ID'))p.setProperty('SPREADSHEET_ID',SpreadsheetApp.getActiveSpreadsheet().getId());
+  if(!p.getProperty('SPREADSHEET_ID'))throw Error('Set the private SPREADSHEET_ID property first.');
   if(!p.getProperty('CAMPAIGN'))p.setProperty('CAMPAIGN','test-'+Utilities.getUuid());
   if(!p.getProperty('VOTING_OPEN'))p.setProperty('VOTING_OPEN','true');
   if(!p.getProperty('MODE'))p.setProperty('MODE','TEST');
@@ -27,7 +16,7 @@ function setupAwards() {
   sheet_();
 }
 function book_(){const id=PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');if(!id)throw Error('Awards are not set up yet.');return SpreadsheetApp.openById(id);}
-function sheet_(){const p=PropertiesService.getScriptProperties();const name=p.getProperty('CAMPAIGN');if(!name)throw Error('Awards are not set up yet.');const book=book_();let sheet=book.getSheetByName(name);if(!sheet){sheet=book.insertSheet(name);sheet.appendRow(HEADERS);sheet.setFrozenRows(1);sheet.getRange(1,1,1,HEADERS.length).setBackground('#294f3b').setFontColor('#ffffff').setFontWeight('bold');sheet.setColumnWidths(4,10,210);sheet.getRange('B:C').setNumberFormat('dd mmm yyyy hh:mm');}return sheet;}
+function sheet_(){const p=PropertiesService.getScriptProperties();const campaign=p.getProperty('CAMPAIGN');if(!campaign)throw Error('Awards are not set up yet.');const name='Awards '+campaign;const book=book_();let sheet=book.getSheetByName(name);if(!sheet){sheet=book.insertSheet(name);sheet.appendRow(HEADERS);sheet.setFrozenRows(1);sheet.getRange(1,1,1,HEADERS.length).setBackground('#294f3b').setFontColor('#ffffff').setFontWeight('bold');sheet.setColumnWidths(4,11,210);sheet.getRange('B:C').setNumberFormat('dd mmm yyyy hh:mm');}return sheet;}
 function doPost(e){try{if(!e||!e.postData||e.postData.contents.length>25000)throw Error('Invalid request.');const body=JSON.parse(e.postData.contents);let data;if(body.action==='status'){const p=PropertiesService.getScriptProperties();const rows=sheet_().getDataRange().getValues().slice(1);data={ok:true,campaign:p.getProperty('CAMPAIGN'),open:p.getProperty('VOTING_OPEN')==='true',hasVotes:rows.some(r=>VALUE_IDS.some((_,i)=>String(r[3+i*2]||'').trim()))};}else if(body.action==='save'){data=saveVote_(body);}else throw Error('Unknown request.');return json_(data);}catch(error){return json_({ok:false,error:error.message||'Unable to save votes.'});}}
 function doGet(){return json_({ok:true,service:'Vision & Values Awards'});}
 function json_(data){return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);}
@@ -52,11 +41,11 @@ function recap_(){
   const url=book_().getUrl()+'#gid='+sheet.getSheetId();html+='<p style="margin-top:30px"><a style="display:inline-block;background:#294f3b;color:#fff;padding:13px 18px;border-radius:8px;text-decoration:none" href="'+escape_(url)+'">Open the full voting sheet →</a></p><p style="font-size:12px;color:#62715f">Private organiser recap · '+escape_(p.getProperty('MODE'))+' round</p></div></div></div>';text+='\nFull sheet: '+url;
   return{html,text,total};
 }
-function previewRecap(){const r=recap_();SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutput(r.html).setWidth(740).setHeight(650),'Recap preview — no email sent');}
+function previewRecap(){console.log(recap_().text);}
 function sendTestRecap(){const r=recap_();MailApp.sendEmail({to:testRecipient_(),subject:'[TEST] Vision & Values — nomination recap',body:r.text,htmlBody:r.html,name:'Vision & Values Awards'});}
 function scheduledRecap(){const p=PropertiesService.getScriptProperties();if(p.getProperty('EMAIL_ENABLED')!=='true')return;const recipient=p.getProperty('EMAIL_RECIPIENT');if(recipient!==testRecipient_())throw Error('Work-address emails are locked until go-live approval.');const r=recap_();MailApp.sendEmail({to:recipient,subject:'[TEST] Vision & Values — nomination recap',body:r.text,htmlBody:r.html,name:'Vision & Values Awards'});}
 /** Run only after testing is verified and scheduling is explicitly enabled. */
 function installTestSchedule(){const p=PropertiesService.getScriptProperties();if(p.getProperty('EMAIL_ENABLED')!=='true')throw Error('Automatic emails are disabled.');if(p.getProperty('EMAIL_RECIPIENT')!==testRecipient_())throw Error('Only the test recipient is enabled.');ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledRecap').forEach(t=>ScriptApp.deleteTrigger(t));[ScriptApp.WeekDay.MONDAY,ScriptApp.WeekDay.THURSDAY].forEach(day=>ScriptApp.newTrigger('scheduledRecap').timeBased().onWeekDay(day).atHour(9).inTimezone('Australia/Sydney').create());}
-function resetTestRound(){const p=PropertiesService.getScriptProperties();if(p.getProperty('MODE')!=='TEST')throw Error('Only test rounds can be reset.');const ui=SpreadsheetApp.getUi();if(ui.alert('Start a fresh test round?','The current sheet will be kept as an archive. Returning browsers will start with blank nominations. Emails stay off.',ui.ButtonSet.OK_CANCEL)!==ui.Button.OK)return;const lock=LockService.getScriptLock();lock.waitLock(20000);try{p.setProperties({CAMPAIGN:'test-'+Utilities.getUuid(),EMAIL_ENABLED:'false',VOTING_OPEN:'true'});sheet_();}finally{lock.releaseLock();}}
+function resetTestRound(){const p=PropertiesService.getScriptProperties();if(p.getProperty('MODE')!=='TEST')throw Error('Only test rounds can be reset.');const lock=LockService.getScriptLock();lock.waitLock(20000);try{p.setProperties({CAMPAIGN:'test-'+Utilities.getUuid(),EMAIL_ENABLED:'false',VOTING_OPEN:'true'});sheet_();}finally{lock.releaseLock();}}
 function closeVoting(){PropertiesService.getScriptProperties().setProperty('VOTING_OPEN','false');}
 function reopenVoting(){PropertiesService.getScriptProperties().setProperty('VOTING_OPEN','true');}

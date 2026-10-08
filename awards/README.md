@@ -8,17 +8,17 @@ Independent app at `/awards/`; the existing survey is unchanged.
 
 ## Connect Google Sheets
 
-1. Create/open the chosen awards spreadsheet. Open **Extensions → Apps Script**.
-2. Replace `Code.gs` with `google-apps-script/Code.gs`. Set the project timezone to Australia/Sydney. The supplied manifest records the required scopes.
-3. In Project Settings → Script properties, set `TEST_RECIPIENT` to the agreed personal testing address (keep email addresses out of the public repository). Run `setupAwards` and complete Google's account authorization. This creates a test voting tab, remembers the spreadsheet ID and leaves email off. Reload the sheet for its **Values Awards** menu.
+1. Create a separate standalone Apps Script project. Keep the existing everyday feedback script and deployment unchanged.
+2. Replace the NEW project's `Code.gs` with `google-apps-script/Code.gs`. Set the project timezone to Australia/Sydney. The supplied manifest records the required scopes.
+3. In Project Settings → Script properties, set `SPREADSHEET_ID` to the chosen existing spreadsheet's ID and `TEST_RECIPIENT` to the agreed personal testing address (keep both out of the public repository). Run `setupAwards` and complete Google's account authorization. This creates a separate awards test tab and leaves email off.
 4. Deploy as a **Web app**, running as the owner, accessible to **Anyone** (voters do not sign in). This creates a public submission endpoint, not public access to the spreadsheet. No endpoint returns nominations or voting IDs.
 5. Put the deployed `/exec` URL in `config.js`, set `preview:false`, publish that change. Do not reuse the old feedback endpoint.
-6. Submit a test nomination, edit it and submit again: there should still be one row. Check the recap via **Preview recap in this sheet**. **Send test recap to Bret** sends only to the personal test address.
-7. Use **Start a fresh TEST round** as often as needed. Existing tabs remain archived; a new campaign ID clears returning browser drafts on their next connection. Never manually wipe a current live round.
+6. Submit a test nomination, edit it and submit again: there should still be one row. Run `previewRecap` for a text recap in the execution log. `sendTestRecap` sends only to the personal test address.
+7. Run `resetTestRound` as often as needed. Existing tabs remain archived; a new campaign ID clears returning browser drafts on their next connection. Never manually wipe a current live round.
 
 ## Before going live
 
-Requires explicit user approval. Start a clean campaign, set `MODE` to `LIVE`, and only then configure the approved final recipient and remove the test-only recipient gate. Verify final recipient access to the private sheet. Do not enable the schedule until the email has been reviewed. The provided test schedule is Monday and Thursday during the 9am hour in Australia/Sydney; Apps Script does not guarantee an exact minute.
+Requires explicit user approval. Start a clean campaign and set `MODE` to `LIVE`. The organiser has chosen to keep recaps going to the personal address and forward them manually; do not switch to a work address. Keep the recipient gate in place. Do not enable the schedule until the email has been reviewed. The provided schedule is Monday and Thursday during the 9am hour in Australia/Sydney; Apps Script does not guarantee an exact minute.
 
 Every recap is the **complete current snapshot**, grouped by value, preserving free-text names and reasons. Prior email totals must not be added together. Aliases are resolved manually. No winner is selected automatically.
 
