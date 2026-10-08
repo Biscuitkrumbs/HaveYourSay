@@ -27,6 +27,7 @@ Every recap is the **complete current snapshot**, grouped by value, preserving f
 - Five values shuffled once per page load; each answer keyed by stable value ID.
 - Optional categories; a submitted nomination requires a name and a short reason.
 - Local browser UUID identifies the editable row. Different browsers/devices can create separate entries.
+- Voter name/nickname is accepted but not required; provided names appear in the private recap. The form does not label the field optional.
 - Locks prevent simultaneous submissions appending duplicate rows. Retrying after a lost response updates the same row.
 - Drafts persist locally; only Submit saves to Sheets. All submitted nominations may be cleared later to withdraw them.
 - Public participation state is a boolean only. Equal value sizes and decorative glow never encode results.
